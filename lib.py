@@ -11,6 +11,9 @@ def clean(data, val_to_drop, prefix='PAY_', col_ind_list = [0,2,3,4,5,6]):
         
     return data
 
+def spotclean(data, val_to_drop, prefix = '', 
+
+
 def dummify(data, categ_cols, dropfirstcond=True):
     for col in categ_cols:
         data[col].astype('category')
