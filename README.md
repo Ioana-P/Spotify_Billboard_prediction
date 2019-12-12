@@ -1,5 +1,5 @@
-## Executive Summary:
-## Spotify Billboard Hit Prediction
+# Executive Summary:
+# Spotify Billboard Hit Prediction
 Fadi Sarraf (FS) and Ioana Preoteasa (IP)
 
 Using the USA billboard 100 dataset from 1990 onwards and data collected from Spotify's API, we built a series of classification models to predict whether a track will make it on the billboard. Is it hot or not?
@@ -15,5 +15,5 @@ index.ipynb - our final, technical notebook; also contains our data dictionary i
 test_data.csv - final data set used for generating models and predictions
 library.py - python file with all of our functions for cleaning and modelling stored
 Spotify_billboard_prediction_ppt.pdf - pdf of our final presentation to stakeholders
-
-
+vis_data.csv - subset of numeric values in our dataset; used purely for some exploratory data visualizations
+data.csv - original,raw data file post merge of Billboard and Spotify data
