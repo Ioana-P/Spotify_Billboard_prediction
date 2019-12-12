@@ -3,10 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.pipeline import Pipeline
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, roc_curve
 import os
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from graphviz import Source
+import pydotplus
 
 
 
@@ -200,6 +207,8 @@ def full_clean(data, dropnas=True, drop_unique_genres=True, col_name='artist_gen
     return final_df
 
 
+
+
               
 # ______________ VISUALIZATION FUNCTIONS ______________________
 
@@ -210,69 +219,221 @@ def eda_visuals(data, scatter_matrix=False,
 
 
 # _____________ PIPELINE FUNCTIONS __________________________
+def preproccessing():
+    numeric_features = ['duration_ms', 'tempo', 'loudness', 'popularity']
+    numeric_transformer = Pipeline(steps=[('scaler', MinMaxScaler())])
+    categorical_features = ['key', 'mode', 'time_signature', 'artist_name']
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))], verbose=True)
+    
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, numeric_features),
+            ('cat', categorical_transformer, categorical_features),
+        ])
+    return preprocessor
 
-def model_pipe(model_list, cv_num=5):
-#     model_results=pd.Dataframe()
-    
-#     pipe = Pipeline([('mms', scaler),
-#                      ('pca', PCA(n_components=10)),
-#                      ('tree', tree.DecisionTreeClassifier(random_state=123))])
-    
-#     # Create the grid parameter
-#     grid = [{'svm__kernel': ['poly', 'sigmoid'],
-#              'svm__C': [0.01, 1, 100],
-#              'svm__degree0': [2,3,4,5],
-#              'svm__gamma': [0.001, 0.01]}]
 
-#     # Create the grid, with "pipe" as the estimator
-#     gridsearch = GridSearchCV(estimator=pipe,
-#                       param_grid=grid,
-#                       scoring='accuracy',
-#                       cv=cv_num)
-    pass
+def model_pipe(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
+   
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
 
-def model_all(x, y, cv_num=5, show_tree=True, save_tree=False):
-#     model_results = pd.DataFrame()
     
-#     scaler = MinMaxScaler()
+
     
-    
-    
-#     #running and 
-#     tree_clf = DecisionTreeClassifier(max_depth = 10, min_samples_leaf = 10)
-#     tree_clf.fit(x,y)
-    
-#     if show_tree:
-#         export_graphviz(
-#                     tree_clf,
-#                     feature_names = x.columns,
-#                     class_names = np.unique(y).astype('str'),
-#                     rounded = True,
-#                     filled = True)
+#     if scaler=='MinMaxScaler':
+#         numeric_features = ['duration_ms', 'tempo', 'loudness', 'popularity']
+#         numeric_transformer = Pipeline(steps=[('scaler', MinMaxScaler())], verbose=True)
         
-#         if save_tree:
-#             PROJECT_ROOT_DIR = "."
-#             CHAPTER_ID = "decision_trees"
-#             IMAGES_PATH = os.path.join(PROJECT_ROOT_DIR, "images", CHAPTER_ID)
-#             os.makedirs(IMAGES_PATH, exist_ok=True)
-#             def save_fig(fig_id, tight_layout=True, fig_extension="png", resolution=300):
-#                 path = os.path.join(IMAGES_PATH, fig_id + "." + fig_extension)
-#                 print("Saving figure", fig_id)
-#                 if tight_layout:
-#                     plt.tight_layout()
-#                 plt.savefig(path, format=fig_extension, dpi=resolution)
-#             export_graphviz(
-#                     tree_clf,
-#                     out_file = os.path.join(IMAGES_PATH, "tracks.dot"),
-#                     feature_names = X.columns,
-#                     class_names = np.unique(y).astype('str'),
-#                     rounded = True,
-#                     filled = True)
-            
-#             Source.from_file(os.path.join(IMAGES_PATH, "tracks.dot"))
+    
+#     if scaler=='StandardScaler':
+#         numeric_features = ['duration_ms', 'tempo', 'loudness', 'popularity']
+#         numeric_transformer = Pipeline(steps=[('scaler', StandardScaler())])
+        
+#     categorical_features = ['key', 'mode', 'time_signature', 'artist_name']
+#     categorical_transformer = Pipeline(steps=[
+#         ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+    
+#     preprocessor = ColumnTransformer(
+#         transformers=[
+#             ('num', numeric_transformer, numeric_features),
+#             ('cat', categorical_transformer, categorical_features),
+#         ])
+        
+#     categorical_features = ['key', 'mode', 'time_signature', 'artist_name']
+#     categorical_transformer = Pipeline(steps=[
+#         ('onehot', OneHotEncoder(handle_unknown='ignore'))], verbose=True)
+    
+#     preprocessor = ColumnTransformer(
+#                                     transformers=[
+#                                         ('num', numeric_transformer, numeric_features),
+#                                         ('cat', categorical_transformer, categorical_features)])
+    
+    preprocessor = preproccessing()
+    
+    if model=='logistic':
+        clf = Pipeline(steps=[('preprocessor', preprocessor),
+                      ('classifier', LogisticRegression(C=1, max_iter=1000,solver='lbfgs'))])
+
     
     
-    pass
+    elif model=='poly-SVM':
+        clf =Pipeline([
+                    ('preprocessor', preprocessor),
+                    ('svm_clf', SVC(kernel="poly", degree=3, gamma='auto', coef0=1, C=1))
+                ])
+
+        
+    elif model=='DecisionTree':
+        categorical_features = ['key', 'mode', 'time_signature', 'artist_name']
+        categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
+        preprocessor = ColumnTransformer(transformers=[
+                    ('num', numeric_transformer, numeric_features),
+                    ('cat', categorical_transformer, categorical_features)])
+        clf = Pipeline(steps=[('preprocessor', preprocessor),
+                              ('classifier', DecisionTreeClassifier(max_depth = 10, min_samples_leaf = 100))])
+        
+        
+    elif model=='KNN':
+        clf = Pipeline(steps=[('preprocessor', preprocessor),
+                      ('classifier', KNeighborsClassifier(n_neighbors=3))])
+    
+    
+    print(x_train.shape)
+    print(x_test.shape)
+    clf.fit(x_train,y_train)
+    
+    y_train_predict = clf.predict(x_train)
+    
+    train_score = clf.score(x_train,y_train)
+    train_probs = clf[1].predict_proba(x_train)
+    train_rocauc = roc_auc_score(y_train, train_proba)
+    
+    test_score = clf.score(x_test, y_test)
+    test_probs = clf[1].predict_proba(x_test)
+    test_rocauc = roc_auc_score(y_test, test_proba)
     
     
     
+    
+    return model,scaler, train_score, train_rocauc, test_score, test_rocauc
+
+
+def run_all_models(x, y, model_list=['logistic', 'DecisionTree','KNN', 'poly-SVM'], 
+                   scaler=MinMaxScaler, cv_num=5, test_size=.25):
+    
+    train_model_df = pd.DataFrame(index=model_list, columns = ['Accuracy_on_train', 'ROC_AUC_on_train'])
+    test_model_df = pd.DataFrame(index=model_list, columns = ['Accuracy_on_train', 'ROC_AUC_on_train'])
+    
+    for model in model_list:
+        model,scaler, train_score, train_rocauc, test_score, test_rocauc = model_pipe(x,y, model, scaler=scaler, cv_num=cv_num, test_size=test_size)
+        train_model_df['Accuracy_on_train'][model] = train_score
+        train_model_df['ROC_AUC_on_train'][model] = train_rocauc
+        
+        test_model_df['Accuracy_on_test'][model] = test_score
+        test_model_df['ROC_AUC_on_test'][model] = test_rocauc
+        
+    return train_model_df, test_model_df
+    
+
+                   
+def model_maker(X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+    
+    numeric_features = ['duration_ms', 'tempo', 'loudness', 'popularity']
+    numeric_transformer = Pipeline(steps=[('scaler', MinMaxScaler())])
+    categorical_features = ['key', 'mode', 'time_signature', 'artist_name']
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+    
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, numeric_features),
+            ('cat', categorical_transformer, categorical_features),
+        ])
+    
+    clf = Pipeline(steps=[('preprocessor', preprocessor),
+                      ('classifier', KNeighborsClassifier(n_neighbors=3))])
+                      
+    
+    clf.fit(X_train, y_train)
+    clf.predict_proba(X_train)
+    print('X_train Score: ', clf.score(X_train, y_train))
+    print('(-----------------------)')
+    clf.predict(X_test)
+    print('X_test Score:  ', clf.score(X_test, y_test))
+    
+    return 
+
+
+
+def model_pipe2(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
+   
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
+
+    
+
+    
+    if scaler=='MinMaxScaler':
+        numeric_features = ['duration_ms', 'tempo', 'loudness', 'popularity']
+        numeric_transformer = Pipeline(steps=[('scaler', MinMaxScaler())], verbose=True)
+        
+    
+    if scaler=='StandardScaler':
+        numeric_features = ['duration_ms', 'tempo', 'loudness', 'popularity']
+        numeric_transformer = Pipeline(steps=[('scaler', StandardScaler())])
+        
+    
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numeric_transformer, numeric_features),
+        ])
+        
+    
+    if model=='logistic':
+        clf = Pipeline(steps=[('preprocessor', preprocessor),
+                      ('classifier', LogisticRegression(C=1, max_iter=1000,solver='lbfgs'))])
+
+    
+    
+    if model=='poly-SVM':
+        clf =Pipeline([
+                    ('preprocessor', preprocessor),
+                    ('svm_clf', SVC(kernel="poly", degree=3, gamma='auto', coef0=1, C=1))
+                ])
+
+        
+    if model=='DecisionTree':
+    
+        preprocessor = ColumnTransformer(transformers=[
+                    ('num', numeric_transformer, numeric_features),
+                    ])
+        clf = Pipeline(steps=[('preprocessor', preprocessor),
+                              ('classifier', DecisionTreeClassifier(max_depth = 10, min_samples_leaf = 100))])
+        
+        
+    if model=='KNN':
+        clf = Pipeline(steps=[('preprocessor', preprocessor),
+                      ('classifier', KNeighborsClassifier(n_neighbors=3))])
+    
+    
+    print(x_train.shape)
+    print(x_test.shape)
+    clf.fit(x_train,y_train)
+    
+    y_train_predict = clf.predict(x_train)
+    
+    train_score = clf.score(x_train,y_train)
+    train_proba = clf.predict_proba(x_train)[:,0]
+    train_pred = clf.predict(x_train)
+    train_rocauc = roc_auc_score(y_train, train_pred)
+    
+    test_score = clf.score(x_test, y_test)
+    test_proba = clf.predict_proba(x_test)[:,0]
+    test_pred = clf.predict(x_test)
+    test_rocauc = roc_auc_score(y_test, test_pred)
+    
+    
+    
+    
+    return model,scaler, train_score, train_rocauc, test_score, test_rocauc
