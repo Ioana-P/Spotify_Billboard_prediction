@@ -101,6 +101,8 @@ def classify_genres_ALL(input_df, col, drop_genre_col=True):
     return df, uniques
 
 
+
+
 def get_many_genres(df, broad_genre_list, unique_genre_list):
     gdf = df.copy()
     
@@ -138,30 +140,51 @@ def get_many_genres(df, broad_genre_list, unique_genre_list):
                    
     return new_broad_genre_list, uniques_to_drop
                   
-def classify_genres_NARROW(df, broad_genre_list, drop_list, drop_uniques=True):
+def classify_genres_NARROW(df, broad_genre_list, unigen, drop_uniques=True):
     new_df = df.copy()
     
     main_genre_list=[]
+    
+#     drop_list = unigen
+    
+    new_broad_genre_list = []
 
     for genre_list in broad_genre_list:
-        main_genre = genre_list[0]
+        new_genre_list=[]
+        for genre_stem in genre_list:
+            for genre in unigen:
+                if genre_stem in genre:
+                    new_genre_list.append(genre)
+
+        new_broad_genre_list.append(new_genre_list)
+    
+    final_drop_list=[]
+    
+    for genre_list in new_broad_genre_list:
+        if len(genre_list)>1:
+            main_genre = genre_list[0]
+            final_drop_list.append(genre_list[1:])
+        else:
+            main_genre = genre_list
         main_genre_list.append(main_genre)
         new_df[str(main_genre)] = 0
-        genre_col_list = [str(x) for x in genre_list]
+        genre_col_list = genre_list   #[x for x in genre_list]
         for subgenre in genre_col_list:
-            
-            if subgenre in unique_genre_list:
+            if subgenre in new_df.columns:
                 new_df[str(main_genre)] += new_df[subgenre]
             
             
         new_df.loc[new_df[str(main_genre)]>1, str(main_genre)] = 1
     
+    for genre in main_genre_list:
+        if genre in final_drop_list:
+            drop_list.remove(genre)
     
-
-    
+#     print(drop_list)
    
     if drop_uniques:
-        new_df.drop(columns=uniques_to_drop, inplace=True)
+        for genre in final_drop_list:
+            new_df.drop(columns=genre[0], inplace=True)
     
     return new_df
 
