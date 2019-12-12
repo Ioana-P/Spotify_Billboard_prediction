@@ -234,7 +234,7 @@ def preproccessing():
     return preprocessor
 
 
-def model_pipe(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
+def model_pipe_old(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
    
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
 
@@ -320,10 +320,10 @@ def model_pipe(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
 
 
 def run_all_models(x, y, model_list=['logistic', 'DecisionTree','KNN', 'poly-SVM'], 
-                   scaler=MinMaxScaler, cv_num=5, test_size=.25):
+                   scaler='MinMaxScaler', cv_num=5, test_size=.25):
     
     train_model_df = pd.DataFrame(index=model_list, columns = ['Accuracy_on_train', 'ROC_AUC_on_train'])
-    test_model_df = pd.DataFrame(index=model_list, columns = ['Accuracy_on_train', 'ROC_AUC_on_train'])
+    test_model_df = pd.DataFrame(index=model_list, columns = ['Accuracy_on_test', 'ROC_AUC_on_test'])
     
     for model in model_list:
         model,scaler, train_score, train_rocauc, test_score, test_rocauc = model_pipe(x,y, model, scaler=scaler, cv_num=cv_num, test_size=test_size)
@@ -367,7 +367,7 @@ def model_maker(X, y):
 
 
 
-def model_pipe2(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
+def model_pipe(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
    
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
 
@@ -424,12 +424,18 @@ def model_pipe2(x, y, model, scaler='MinMaxScaler', cv_num=5, test_size=.25):
     y_train_predict = clf.predict(x_train)
     
     train_score = clf.score(x_train,y_train)
-    train_proba = clf.predict_proba(x_train)[:,0]
+    if model=='logistic':
+        train_proba = clf.predict_proba(x_train)[:,0]
+    else:
+        train_proba = clf.predict(x_train)
     train_pred = clf.predict(x_train)
     train_rocauc = roc_auc_score(y_train, train_pred)
     
     test_score = clf.score(x_test, y_test)
-    test_proba = clf.predict_proba(x_test)[:,0]
+    if model=='logistic':
+        test_proba = clf.predict_proba(x_test)[:,0]
+    else:
+        test_proba = clf.predict(x_test)
     test_pred = clf.predict(x_test)
     test_rocauc = roc_auc_score(y_test, test_pred)
     
