@@ -12,7 +12,7 @@ Next steps:
 We would like to perform further modelling on a subset of data. For songs that did make it onto the Billboard, we want to predict their peak position and how longthey stay on the Billboard. 
 
 index.ipynb - our final, technical notebook; also contains our data dictionary in section 1.
-test_data.csv - final data set used for generating models and predictions
+class_tracks.csv - final data set used for generating models and predictions
 library.py - python file with all of our functions for cleaning and modelling stored
 Spotify_billboard_prediction_ppt.pdf - pdf of our final presentation to stakeholders
 vis_data.csv - subset of numeric values in our dataset; used purely for some exploratory data visualizations
