@@ -14,6 +14,5 @@ We would like to perform further modelling on a subset of data. For songs that d
 index.ipynb - our final, technical notebook; also contains our data dictionary in section 1.
 class_tracks.csv - final data set used for generating models and predictions
 library_final.py - python file with all of our functions for cleaning and modelling stored
-Spotify_billboard_prediction_ppt.pdf - pdf of our final presentation to stakeholders
 vis_data.csv - subset of numeric values in our dataset; used purely for some exploratory data visualizations
 data.csv - original,raw data file post merge of Billboard and Spotify data
