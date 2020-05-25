@@ -8,10 +8,10 @@ We started by using four different classifier models (logistic regression, K-nea
 
 Our most successful model method was a Decision Tree with a ROC AUC score of 0.8270044640013661 (on test data), partially shown below:
 
-![Best model - Decision Tree](https://github.com/Ioana-P/Spotify_Billboard_prediction/fig/dec_tree.jpg)
+![Best model - Decision Tree](https://github.com/Ioana-P/Spotify_Billboard_prediction/tree/master/fig/dec_tree.jpg)
 
 Model's performance summary:
-![Best model - Decision Tree ROC Curve and Confusion Matrix](https://github.com/Ioana-P/Spotify_Billboard_prediction/fig/dec_tree_roc_curve.jpg)
+![Best model - Decision Tree ROC Curve and Confusion Matrix](https://github.com/Ioana-P/Spotify_Billboard_prediction/tree/master/fig/dec_tree_roc_curve.jpg)
 
 
 
