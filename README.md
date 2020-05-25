@@ -6,9 +6,12 @@ Using the USA billboard 100 dataset from 1990 onwards and data collected from Sp
 
 We started by using four different classifier models (logistic regression, K-nearest neighbours, decision trees and support vector classifiers) through Scikit-Learn's library to achieve our baseline results for ROC AUC. We then chose our most successful model (decision trees) and implemented ensemble methods (Random Forest and VoteStacking) in order to push the success of our model further. 
 
-Our most successful model method was a Decision Tree with a ROC AUC score of 0.8270044640013661 (on test data), shown below:
+Our most successful model method was a Decision Tree with a ROC AUC score of 0.8270044640013661 (on test data), partially shown below:
 
-![Best model - Decision Tree](https://github.com/Ioana-P/Spotify_Billboard_prediction/fig/best_model_fig.jpg)
+![Best model - Decision Tree](https://github.com/Ioana-P/Spotify_Billboard_prediction/fig/dec_tree.jpg)
+
+Model's performance summary:
+![Best model - Decision Tree ROC Curve and Confusion Matrix](https://github.com/Ioana-P/Spotify_Billboard_prediction/fig/dec_tree_roc_curve.jpg)
 
 
 
